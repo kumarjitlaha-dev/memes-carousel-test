@@ -504,8 +504,8 @@
         try {
           window.courseraApi.callMethod({
             type: "GET_SESSION_CONFIGURATION",
-            onSuccess: () => loadMemeImages(),
-            onError: () => loadMemeImages()
+onSuccess: () => notifyCourseraResize(),
+            onError: () => notifyCourseraResize()
           });
         } catch (e) {
           loadMemeImages();
