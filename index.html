@@ -117,7 +117,7 @@
 
     .image-panel img {
       max-width: 100%;
-      max-height: 250px;
+      max-height: 240px;
       border-radius: 6px;
       object-fit: contain;
     }
@@ -303,56 +303,49 @@
   </div>
 
   <script>
-    // 7 Most Popular Safe-for-Work Memes with verified open-source Imgflip template IDs & descriptions
+    // 7 Popular Safe-for-Work Memes & Viral Templates hosted on Wikimedia Commons
     const memeItems = [
       {
-        id: "112126428",
-        title: "Distracted Boyfriend",
-        fallbackUrl: "https://i.imgflip.com/1ur9b0.jpg",
-        description: "A stock photograph showing a man looking at another woman while his partner looks on in disapproval.",
-        usage: "Commonly used to illustrate shifting attention away from a reliable current priority toward a shiny new distraction."
+        title: "Doge (Kabosu)",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg",
+        description: "A 2010 photograph of a Shiba Inu named Kabosu giving a sideways glance with raised eyebrows, usually paired with colorful Comic Sans internal monologue.",
+        usage: "Used to express playful wonder, mild skepticism, or wholesome enthusiasm ('much wow, very learn')."
       },
       {
-        id: "181913649",
-        title: "Drake Hotline Bling",
-        fallbackUrl: "https://i.imgflip.com/30b1gx.jpg",
-        description: "A two-panel reaction template contrasting rejection in the top frame with enthusiastic approval in the bottom frame.",
-        usage: "Used to compare an outdated or inefficient method against a clearly superior alternative."
+        title: "Trollface",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png",
+        description: "A classic black-and-white MS Paint rage comic character wearing a wide, mischievous grin.",
+        usage: "Represents lighthearted pranks, clever loopholes, or playful teasing in online discussions."
       },
       {
-        id: "87743020",
-        title: "Two Buttons",
-        fallbackUrl: "https://i.imgflip.com/1g8my4.jpg",
-        description: "An illustration of a character sweating anxiously while trying to decide between two red buttons.",
-        usage: "Represents a humorous dilemma where two conflicting choices or principles cannot both be satisfied."
+        title: "Grumpy Cat (Tardar Sauce)",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Grumpy_Cat_by_Gage_Skidmore.jpg/640px-Grumpy_Cat_by_Gage_Skidmore.jpg",
+        description: "A cat famous for her permanently unimpressed facial expression caused by feline dwarfism and an underbite.",
+        usage: "Used to humorously react to Monday mornings, extra meetings, or overly cheerful announcements."
       },
       {
-        id: "129242436",
-        title: "Change My Mind",
-        fallbackUrl: "https://i.imgflip.com/24y43o.jpg",
-        description: "A person sitting casually at an outdoor table with a mug and a sign inviting friendly debate.",
-        usage: "Used to state a bold, lighthearted, or slightly controversial opinion while inviting others to challenge it."
+        title: "Kilroy Was Here",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Kilroy_was_here_%28re-drawn%29.svg/640px-Kilroy_was_here_%28re-drawn%29.svg.png",
+        description: "One of the earliest viral memes in history—a simple doodle of a bald head with a long nose peeking over a wall, popularized during World War II.",
+        usage: "Shows that viral visual memes existed decades before the internet, left as a playful calling card everywhere."
       },
       {
-        id: "55311130",
-        title: "This Is Fine",
-        fallbackUrl: "https://i.imgflip.com/wxica.jpg",
-        description: "A cartoon dog sitting calmly with a cup of coffee inside a room engulfed in flames.",
-        usage: "Depicts maintaining artificial calm or denial in the middle of an overwhelming workplace or project crisis."
+        title: "Keyboard Cat (Fatso)",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/b/b5/Keyboard_cat.jpg",
+        description: "A 1984 video still of a cat wearing a blue shirt rhythmically 'playing' an electronic keyboard.",
+        usage: "Traditionally cut into the end of blooper clips to playfully 'play someone off stage' after a minor mistake."
       },
       {
-        id: "188390779",
-        title: "Woman Yelling at a Cat",
-        fallbackUrl: "https://i.imgflip.com/345v97.jpg",
-        description: "A split-screen pairing a dramatic, emotional accusation on the left with a confused cat sitting at a dinner table on the right.",
-        usage: "Highlights absurd misunderstandings or overreactions met with complete bewilderment."
+        title: "Joseph Ducreux (Archaic Rap)",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Joseph_Ducreux_Original_Self-Portrait.jpg/512px-Joseph_Ducreux_Original_Self-Portrait.jpg",
+        description: "A 1793 self-portrait by French painter Joseph Ducreux pointing enthusiastically at the viewer.",
+        usage: "Paired with overly formal, 18th-century aristocratic translations of modern pop lyrics or everyday phrases."
       },
       {
-        id: "61544",
-        title: "Success Kid",
-        fallbackUrl: "https://i.imgflip.com/1bhk.jpg",
-        description: "A toddler on a beach clenching a fist with a determined, victorious expression.",
-        usage: "Used to celebrate small everyday victories, such as code compiling on the first try or finishing ahead of schedule."
+        title: "Stonks (Meme Man)",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/96/Meme_Man_on_transparent_background.png",
+        description: "A surreal 3D-rendered mannequin head often placed in front of a rising stock chart with intentional misspellings.",
+        usage: "Satirizes questionable financial or life decisions that feel like a genius move in the moment."
       }
     ];
 
@@ -364,29 +357,6 @@
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const progressText = document.getElementById("progressText");
-
-    // Fetch live URLs from Imgflip's open public endpoint, falling back gracefully
-    async function loadMemeImages() {
-      try {
-        const res = await fetch("https://api.imgflip.com/get_memes");
-        const json = await res.json();
-        if (json.success && json.data && Array.isArray(json.data.memes)) {
-          const apiMap = new Map(json.data.memes.map(m => [m.id, m.url]));
-          memeItems.forEach(item => {
-            if (apiMap.has(item.id)) {
-              item.imageUrl = apiMap.get(item.id);
-            } else {
-              item.imageUrl = item.fallbackUrl;
-            }
-          });
-        } else {
-          memeItems.forEach(item => item.imageUrl = item.fallbackUrl);
-        }
-      } catch (e) {
-        memeItems.forEach(item => item.imageUrl = item.fallbackUrl);
-      }
-      renderCarousel();
-    }
 
     function renderCarousel() {
       track.innerHTML = "";
@@ -468,7 +438,6 @@
 
     function updateProgress() {
       progressText.textContent = `Revealed: ${revealedSet.size} / ${memeItems.length}`;
-      // Report completion to Coursera once all 7 are revealed
       if (revealedSet.size === memeItems.length && window.courseraApi) {
         try {
           window.courseraApi.callMethod({
@@ -490,7 +459,7 @@
             data: { height: height }
           });
         } catch (err) {
-          // Safe fallback when previewed outside Coursera iframe
+          // Safe fallback outside Coursera iframe
         }
       }
     }
@@ -498,20 +467,20 @@
     prevBtn.addEventListener("click", () => goToSlide(currentIndex - 1));
     nextBtn.addEventListener("click", () => goToSlide(currentIndex + 1));
 
-    // Initialize Coursera Connect handshake if running inside Coursera / Simulator
+    // Render immediately on load for both standalone browsers and Coursera
     window.addEventListener("load", () => {
+      renderCarousel();
+
       if (window.courseraApi) {
         try {
           window.courseraApi.callMethod({
             type: "GET_SESSION_CONFIGURATION",
-onSuccess: () => notifyCourseraResize(),
+            onSuccess: () => notifyCourseraResize(),
             onError: () => notifyCourseraResize()
           });
         } catch (e) {
-          loadMemeImages();
+          // Standalone preview mode
         }
-      } else {
-        loadMemeImages();
       }
     });
   </script>
