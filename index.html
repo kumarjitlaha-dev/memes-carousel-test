@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SFW Meme Carousel - Click to Reveal</title>
+  <title>SFW Meme Card Flip Carousel</title>
   <!-- Coursera Connect SDK -->
   <script src="https://www.coursera.org/widget/coursera-widget-connect-v0.js"></script>
   <style>
     :root {
-      --primary: #0056d2;
-      --primary-hover: #00419e;
-      --bg: #f5f7fa;
+      --primary: #1a73e8;
+      --bg: #f6f8fa;
       --card-bg: #ffffff;
-      --text-main: #1f1f1f;
-      --text-muted: #5e6c84;
-      --border: #dfe1e6;
+      --text-main: #1f2328;
+      --text-muted: #57606a;
+      --border: #e1e4e8;
     }
 
     * {
@@ -27,425 +26,400 @@
     body {
       background-color: var(--bg);
       color: var(--text-main);
-      padding: 20px;
+      padding: 20px 12px;
       display: flex;
       justify-content: center;
     }
 
-    .plugin-container {
+    .plugin-wrapper {
       width: 100%;
-      max-width: 860px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-      overflow: hidden;
+      max-width: 1060px;
     }
 
-    .header {
-      padding: 18px 24px;
-      border-bottom: 1px solid var(--border);
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #ffffff;
+      margin-bottom: 14px;
+      padding: 0 18px;
     }
 
-    .header h2 {
-      font-size: 1.2rem;
+    .top-bar h2 {
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-main);
     }
 
-    .progress-badge {
+    .top-bar .sub-hint {
       font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--primary);
-      background: #e8f1ff;
-      padding: 4px 12px;
-      border-radius: 20px;
+      color: var(--text-muted);
     }
 
-    /* Carousel Viewport */
-    .carousel-viewport {
+    .progress-badge {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: #e8f0fe;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* Carousel Shell with Overlapping Circular Buttons */
+    .carousel-shell {
       position: relative;
-      width: 100%;
+      padding: 4px 18px;
+    }
+
+    .carousel-viewport {
       overflow: hidden;
+      width: 100%;
+      padding: 8px 2px 14px 2px;
     }
 
     .carousel-track {
       display: flex;
+      gap: 16px;
       transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-      width: 100%;
     }
 
-    .slide {
-      min-width: 100%;
-      padding: 24px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: stretch;
+    /* 4 cards visible at once on desktop */
+    .flip-card {
+      flex: 0 0 calc((100% - 48px) / 4);
+      height: 295px;
+      perspective: 1000px;
+      cursor: pointer;
+      user-select: none;
     }
 
-    @media (max-width: 680px) {
-      .slide {
-        grid-template-columns: 1fr;
+    @media (max-width: 860px) {
+      .flip-card {
+        flex: 0 0 calc((100% - 16px) / 2);
       }
     }
 
-    /* Left Side: Meme Image Card */
-    .image-panel {
-      background: #f0f2f5;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      min-height: 290px;
+    @media (max-width: 520px) {
+      .flip-card {
+        flex: 0 0 100%;
+      }
+    }
+
+    .flip-card-inner {
       position: relative;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
     }
 
-    .image-panel:hover {
-      box-shadow: 0 4px 10px rgba(0, 86, 210, 0.15);
-      border-color: var(--primary);
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
     }
 
-    .image-panel img {
-      max-width: 100%;
-      max-height: 240px;
-      border-radius: 6px;
-      object-fit: contain;
-    }
-
-    .meme-caption-tag {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-main);
-      text-align: center;
-    }
-
-    /* Right Side: Click-to-Reveal Panel */
-    .reveal-panel {
-      border: 2px dashed #b3c7e6;
-      border-radius: 8px;
-      background: #f8fbff;
-      padding: 24px;
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 12px;
+      background: var(--card-bg);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      min-height: 290px;
     }
 
-    .reveal-panel.revealed {
-      border: 1px solid var(--border);
-      background: #ffffff;
-      align-items: flex-start;
-      text-align: left;
-      cursor: default;
-    }
-
-    .reveal-prompt-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: #fff;
+    /* Front Card: Image on top, Blue Uppercase Title below */
+    .card-image-box {
+      width: 100%;
+      height: 225px;
+      background: #eef1f5;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      margin-bottom: 12px;
     }
 
-    .reveal-prompt-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 6px;
-    }
-
-    .reveal-prompt-sub {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-    }
-
-    .revealed-content {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .reveal-panel.revealed .revealed-content {
+    .card-image-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
     }
 
-    .reveal-panel.revealed .prompt-state {
-      display: none;
+    .card-label-box {
+      flex: 1;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
     }
 
-    .revealed-label {
-      display: inline-block;
-      font-size: 0.75rem;
+    .meme-label {
+      font-size: 0.8rem;
       font-weight: 700;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #0f7b3e;
-      background: #e3f7ec;
-      padding: 3px 8px;
-      border-radius: 4px;
-      margin-bottom: 10px;
+      color: var(--primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .revealed-content h3 {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-      color: var(--text-main);
+    .flip-hint-icon {
+      font-size: 0.78rem;
+      color: #8c959f;
+      flex-shrink: 0;
+      margin-left: 6px;
     }
 
-    .revealed-content p {
-      font-size: 0.96rem;
-      line-height: 1.55;
-      color: #333333;
-      margin-bottom: 12px;
+    /* Back Card: Description Revealed on Click */
+    .flip-card-back {
+      transform: rotateY(180deg);
+      padding: 18px 16px;
+      justify-content: space-between;
+      background: #ffffff;
+      border-color: #c2d7fa;
     }
 
-    .use-case {
+    .back-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 8px;
+      border-bottom: 1px solid #eef1f5;
+      padding-bottom: 6px;
+    }
+
+    .back-desc {
       font-size: 0.88rem;
-      background: #f4f5f7;
-      padding: 10px 12px;
+      line-height: 1.45;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .back-usage {
+      font-size: 0.8rem;
+      line-height: 1.4;
+      color: var(--text-muted);
+      background: #f6f8fa;
+      padding: 8px 10px;
       border-left: 3px solid var(--primary);
       border-radius: 4px;
-      color: var(--text-main);
     }
 
-    /* Footer Navigation */
-    .controls {
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-      background: #fafbfc;
+    .back-footer {
+      font-size: 0.75rem;
+      color: #8c959f;
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    /* Floating Circular Prev/Next Buttons */
+    .arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #e1e4e8;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
+      color: #24292f;
+      font-size: 1.15rem;
+      font-weight: 700;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-    }
-
-    .nav-btn {
-      background: var(--primary);
-      color: #ffffff;
-      border: none;
-      padding: 9px 18px;
-      border-radius: 6px;
-      font-size: 0.92rem;
-      font-weight: 600;
+      justify-content: center;
       cursor: pointer;
-      transition: background 0.15s ease;
+      z-index: 10;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
     }
 
-    .nav-btn:hover:not(:disabled) {
-      background: var(--primary-hover);
+    .arrow-btn:hover:not(:disabled) {
+      transform: translateY(-50%) scale(1.06);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
     }
 
-    .nav-btn:disabled {
-      background: #cbd2d9;
+    .arrow-btn:disabled {
+      opacity: 0.35;
       cursor: not-allowed;
     }
 
-    .dots {
-      display: flex;
-      gap: 8px;
+    .arrow-prev {
+      left: 0;
     }
 
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #cbd2d9;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .dot.active {
-      background: var(--primary);
-      transform: scale(1.2);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+    .arrow-next {
+      right: 0;
     }
   </style>
 </head>
 <body>
-  <div class="plugin-container" id="app">
-    <div class="header">
-      <h2>Internet Culture 101: 7 Memes</h2>
-      <span class="progress-badge" id="progressText">Revealed: 0 / 7</span>
+  <div class="plugin-wrapper" id="app">
+    <div class="top-bar">
+      <div>
+        <h2>7 Popular Safe-for-Work Memes</h2>
+        <span class="sub-hint">Click any card to flip and read its meaning; click again to flip back.</span>
+      </div>
+      <span class="progress-badge" id="progressText">Viewed: 0 / 7</span>
     </div>
 
-    <div class="carousel-viewport">
-      <div class="carousel-track" id="carouselTrack"></div>
-    </div>
-
-    <div class="controls">
-      <button class="nav-btn" id="prevBtn" disabled>← Previous</button>
-      <div class="dots" id="dotsContainer"></div>
-      <button class="nav-btn" id="nextBtn">Next →</button>
+    <div class="carousel-shell">
+      <button class="arrow-btn arrow-prev" id="prevBtn" aria-label="Previous cards">&#8249;</button>
+      <div class="carousel-viewport" id="viewport">
+        <div class="carousel-track" id="carouselTrack"></div>
+      </div>
+      <button class="arrow-btn arrow-next" id="nextBtn" aria-label="Next cards">&#8250;</button>
     </div>
   </div>
 
   <script>
-    // 7 Popular Safe-for-Work Memes & Viral Templates hosted on Wikimedia Commons
     const memeItems = [
       {
-        title: "Doge (Kabosu)",
-        imageUrl: "https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg",
-        description: "A 2010 photograph of a Shiba Inu named Kabosu giving a sideways glance with raised eyebrows, usually paired with colorful Comic Sans internal monologue.",
-        usage: "Used to express playful wonder, mild skepticism, or wholesome enthusiasm ('much wow, very learn')."
+        title: "Grumpy Cat",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Grumpy_Cat_%2814556024763%29_%28cropped%29.jpg",
+        description: "Tardar Sauce, a cat famous for her permanently unimpressed expression caused by feline dwarfism and an underbite.",
+        usage: "Used to humorously react to Monday mornings, extra meetings, or overly cheerful announcements."
       },
       {
         title: "Trollface",
-        imageUrl: "https://en.wikipedia.org/wiki/Trollface#/media/File:Trollface.png",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/7/73/Trollface.png",
         description: "A classic black-and-white MS Paint rage comic character wearing a wide, mischievous grin.",
         usage: "Represents lighthearted pranks, clever loopholes, or playful teasing in online discussions."
       },
       {
-        title: "Grumpy Cat (Tardar Sauce)",
-        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Grumpy_Cat_%2814556024763%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original.jpg",
-        description: "A cat famous for her permanently unimpressed facial expression caused by feline dwarfism and an underbite.",
-        usage: "Used to humorously react to Monday mornings, extra meetings, or overly cheerful announcements."
-      },
-      {
         title: "Kilroy Was Here",
-        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Kilroy_was_here_%28re-drawn%29.svg/640px-Kilroy_was_here_%28re-drawn%29.svg.png",
-        description: "One of the earliest viral memes in history—a simple doodle of a bald head with a long nose peeking over a wall, popularized during World War II.",
-        usage: "Shows that viral visual memes existed decades before the internet, left as a playful calling card everywhere."
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/99/Kilroy_Was_Here_-_Washington_DC_WWII_Memorial.jpg",
+        description: "One of the earliest viral memes—a doodle of a bald head with a long nose peeking over a wall, popularized during WWII.",
+        usage: "Shows that viral visual memes existed decades before the internet as a playful calling card."
       },
       {
-        title: "Keyboard Cat (Fatso)",
-        imageUrl: "https://upload.wikimedia.org/wikipedia/en/b/b5/Keyboard_cat.jpg",
-        description: "A 1984 video still of a cat wearing a blue shirt rhythmically 'playing' an electronic keyboard.",
-        usage: "Traditionally cut into the end of blooper clips to playfully 'play someone off stage' after a minor mistake."
+        title: "Keyboard Cat",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/8/87/Keyboard_cat.jpg",
+        description: "A 1984 video still of a cat named Fatso wearing a blue shirt rhythmically 'playing' an electronic keyboard.",
+        usage: "Cut into the end of blooper clips to playfully 'play someone off stage' after a minor mistake."
       },
       {
-        title: "Joseph Ducreux (Archaic Rap)",
-        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Joseph_Ducreux_Original_Self-Portrait.jpg/512px-Joseph_Ducreux_Original_Self-Portrait.jpg",
+        title: "Joseph Ducreux",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Joseph_Ducreux_-_Self-portrait_of_the_artist_as_a_mocker.jpg",
         description: "A 1793 self-portrait by French painter Joseph Ducreux pointing enthusiastically at the viewer.",
-        usage: "Paired with overly formal, 18th-century aristocratic translations of modern pop lyrics or everyday phrases."
+        usage: "Paired with overly formal, 18th-century aristocratic translations of modern pop lyrics."
       },
       {
         title: "Stonks (Meme Man)",
-        imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/96/Meme_Man_on_transparent_background.png",
-        description: "A surreal 3D-rendered mannequin head often placed in front of a rising stock chart with intentional misspellings.",
-        usage: "Satirizes questionable financial or life decisions that feel like a genius move in the moment."
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/9/96/Meme_Man_on_transparent_background.webp",
+        description: "A surreal 3D-rendered mannequin head placed in front of a rising stock chart with intentional misspellings.",
+        usage: "Satirizes questionable financial or everyday decisions that feel like a genius move in the moment."
+      },
+      {
+        title: "Doge (Kabosu)",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg",
+        description: "A 2010 photograph of a Shiba Inu named Kabosu giving a sideways glance with raised eyebrows.",
+        usage: "Paired with colorful Comic Sans monologue to express playful wonder ('much wow, very learn')."
       }
     ];
 
-    let currentIndex = 0;
-    const revealedSet = new Set();
+    let startIndex = 0;
+    const viewedSet = new Set();
 
     const track = document.getElementById("carouselTrack");
-    const dotsContainer = document.getElementById("dotsContainer");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const progressText = document.getElementById("progressText");
 
-    function renderCarousel() {
+    function getVisibleCount() {
+      if (window.innerWidth <= 520) return 1;
+      if (window.innerWidth <= 860) return 2;
+      return 4;
+    }
+
+    function renderCards() {
       track.innerHTML = "";
-      dotsContainer.innerHTML = "";
 
       memeItems.forEach((item, index) => {
-        // Build Slide
-        const slide = document.createElement("div");
-        slide.className = "slide";
+        const card = document.createElement("div");
+        card.className = "flip-card";
+        card.setAttribute("role", "button");
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("aria-label", `${item.title} card. Click to flip.`);
 
-        // Left: Image Card
-        const imgPanel = document.createElement("div");
-        imgPanel.className = "image-panel";
-        imgPanel.title = "Click to reveal description";
-        imgPanel.innerHTML = `
-          <img src="${item.imageUrl}" alt="${item.title}" />
-          <div class="meme-caption-tag">#${index + 1}: ${item.title}</div>
-        `;
-
-        // Right: Click-to-Reveal Card
-        const revealPanel = document.createElement("div");
-        revealPanel.className = "reveal-panel" + (revealedSet.has(index) ? " revealed" : "");
-        revealPanel.id = `reveal-${index}`;
-        revealPanel.innerHTML = `
-          <div class="prompt-state">
-            <div class="reveal-prompt-icon">?</div>
-            <div class="reveal-prompt-title">Click Image or Here to Reveal</div>
-            <div class="reveal-prompt-sub">Uncover what the "${item.title}" meme means</div>
-          </div>
-          <div class="revealed-content">
-            <span class="revealed-label">Revealed Explanation</span>
-            <h3>${item.title}</h3>
-            <p>${item.description}</p>
-            <div class="use-case"><strong>Common Context:</strong> ${item.usage}</div>
+        card.innerHTML = `
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-image-box">
+                <img src="${item.imageUrl}" alt="${item.title}" />
+              </div>
+              <div class="card-label-box">
+                <span class="meme-label">${item.title}</span>
+                <span class="flip-hint-icon" title="Click to flip">&#8635;</span>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div>
+                <div class="back-header">${item.title}</div>
+                <p class="back-desc">${item.description}</p>
+                <div class="back-usage"><strong>Context:</strong> ${item.usage}</div>
+              </div>
+              <div class="back-footer">Click to flip back &#8634;</div>
+            </div>
           </div>
         `;
 
-        const handleReveal = () => {
-          if (!revealedSet.has(index)) {
-            revealedSet.add(index);
-            revealPanel.classList.add("revealed");
+        const toggleFlip = () => {
+          card.classList.toggle("flipped");
+          if (!viewedSet.has(index)) {
+            viewedSet.add(index);
             updateProgress();
           }
         };
 
-        imgPanel.addEventListener("click", handleReveal);
-        revealPanel.addEventListener("click", handleReveal);
+        card.addEventListener("click", toggleFlip);
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleFlip();
+          }
+        });
 
-        slide.appendChild(imgPanel);
-        slide.appendChild(revealPanel);
-        track.appendChild(slide);
-
-        // Build Pagination Dot
-        const dot = document.createElement("button");
-        dot.className = "dot" + (index === currentIndex ? " active" : "");
-        dot.setAttribute("aria-label", `Go to slide ${index + 1}`);
-        dot.addEventListener("click", () => goToSlide(index));
-        dotsContainer.appendChild(dot);
+        track.appendChild(card);
       });
 
-      updateCarouselPosition();
-      notifyCourseraResize();
-    }
-
-    function goToSlide(index) {
-      currentIndex = Math.max(0, Math.min(memeItems.length - 1, index));
       updateCarouselPosition();
     }
 
     function updateCarouselPosition() {
-      track.style.transform = `translateX(-${currentIndex * 100}%)`;
-      prevBtn.disabled = currentIndex === 0;
-      nextBtn.disabled = currentIndex === memeItems.length - 1;
+      const visibleCount = getVisibleCount();
+      const maxStart = Math.max(0, memeItems.length - visibleCount);
+      startIndex = Math.max(0, Math.min(startIndex, maxStart));
 
-      const dots = dotsContainer.querySelectorAll(".dot");
-      dots.forEach((d, idx) => d.classList.toggle("active", idx === currentIndex));
+      const firstCard = track.querySelector(".flip-card");
+      if (firstCard) {
+        const stepWidth = firstCard.getBoundingClientRect().width + 16; // card width + 16px gap
+        track.style.transform = `translateX(-${startIndex * stepWidth}px)`;
+      }
+
+      prevBtn.disabled = startIndex === 0;
+      nextBtn.disabled = startIndex >= maxStart;
       notifyCourseraResize();
     }
 
     function updateProgress() {
-      progressText.textContent = `Revealed: ${revealedSet.size} / ${memeItems.length}`;
-      if (revealedSet.size === memeItems.length && window.courseraApi) {
+      progressText.textContent = `Viewed: ${viewedSet.size} / ${memeItems.length}`;
+      if (viewedSet.size === memeItems.length && window.courseraApi) {
         try {
           window.courseraApi.callMethod({
             type: "SET_ANSWER",
             data: { completed: true, score: 1 }
           });
         } catch (err) {
-          console.log("Coursera API optional callback:", err);
+          // Safe fallback outside Coursera
         }
       }
     }
@@ -453,23 +427,31 @@
     function notifyCourseraResize() {
       if (window.courseraApi) {
         try {
-          const height = document.getElementById("app").offsetHeight + 40;
+          const height = document.getElementById("app").offsetHeight + 44;
           window.courseraApi.callMethod({
             type: "SET_HEIGHT",
             data: { height: height }
           });
         } catch (err) {
-          // Safe fallback outside Coursera iframe
+          // Safe fallback outside Coursera
         }
       }
     }
 
-    prevBtn.addEventListener("click", () => goToSlide(currentIndex - 1));
-    nextBtn.addEventListener("click", () => goToSlide(currentIndex + 1));
+    prevBtn.addEventListener("click", () => {
+      startIndex -= 1;
+      updateCarouselPosition();
+    });
 
-    // Render immediately on load for both standalone browsers and Coursera
+    nextBtn.addEventListener("click", () => {
+      startIndex += 1;
+      updateCarouselPosition();
+    });
+
+    window.addEventListener("resize", updateCarouselPosition);
+
     window.addEventListener("load", () => {
-      renderCarousel();
+      renderCards();
 
       if (window.courseraApi) {
         try {
